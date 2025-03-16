@@ -7,7 +7,6 @@
 
 #Setup
 # pip install -U sentence-transformers
-import sentence_transformers
 
 from sentence_transformers import SentenceTransformer
 sentences = ["This is an example sentence", "Each sentence is converted"]
@@ -15,3 +14,10 @@ sentences = ["This is an example sentence", "Each sentence is converted"]
 model = SentenceTransformer('sentence-transformers/all-mpnet-base-v2')
 embeddings = model.encode(sentences)
 print(embeddings)
+
+embedding1 = embeddings[0]
+embedding2 = embeddings[1]
+
+from sklearn.metrics.pairwise import cosine_similarity; 
+similarity_score = cosine_similarity(embedding1, embedding2)
+print(similarity_score)
