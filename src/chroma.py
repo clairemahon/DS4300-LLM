@@ -2,11 +2,6 @@
 #Installation
 # pip install chromadb
 
-# import chromadb
-# import fitz
-# import numpy as np
-# import os
-
 from chromadb.config import Settings
 from chromadb.utils import embedding_functions
 import chromadb
@@ -17,7 +12,7 @@ import ollama
 from sentence_transformers import SentenceTransformer
 
 # Initialize SentenceTransformer model
-model = SentenceTransformer('all-MiniLM-L6-v2')  # Model from sentence-transformers library
+model = SentenceTransformer('all-mpnet-base-v2')  # Model from sentence-transformers library
 
 client = chromadb.Client()
 
@@ -54,18 +49,22 @@ def get_embedding(text: str) -> list:
     #print(f"Document Text: {embedding}")
     return embedding
 
-
-# Store the embedding in Chroma
-def store_embedding(file: str, page: str, chunk_text: str, embedding: list, collection):
-    metadata = {"file": file, "page": page, "chunk": chunk_text}
+def store_embedding(file: str, page: str, chunk: str, embedding: list, collection):
+    metadata = {
+        "file": file,
+        "page": page,
+        "chunk": chunk,
+    }
+    
+    # Add the document, embedding, and metadata to Chroma
     collection.add(
-        documents=[chunk_text],  # This stores the actual text chunk
-        metadatas=[metadata],
-        embeddings=[embedding],
-        ids=[f"{file}_page_{page}_chunk_{chunk_text}"]  # Use chunk text or an ID based on your needs
+        documents=[chunk],  # Text chunk
+        metadatas=[metadata],  # Metadata associated with the chunk
+        embeddings=[embedding],  # Embedding vector
+        ids=[f"{file}_page_{page}_chunk_{chunk}"]  # Unique ID for the chunk (using file, page, chunk as unique identifier)
     )
-    #print(f"Stored embedding for: {chunk_text}")  # Print the actual text
-
+    
+    #print(f"Stored embedding for: {chunk}")
 
 # Extract text from a PDF by page
 def extract_text_from_pdf(pdf_path):
@@ -101,12 +100,11 @@ def process_pdfs(data_dir, collection):
                     store_embedding(
                         file=file_name,
                         page=str(page_num),
-                        chunk_text=chunk,  # Pass the actual text chunk here, not its index
+                        chunk=chunk,
                         embedding=embedding,
                         collection=collection
                     )
             print(f" -----> Processed {file_name}")
-
 
 
 # Query Chroma collection
@@ -117,38 +115,40 @@ def query_chroma(query: str, collection):
         n_results=5
     )
     #print("Raw Query Results:", results)  # Debugging the raw query result
+    top_results = []
 
     # Loop through results and access documents, metadata, and distances
     for doc, metadata, distance in zip(results['documents'], results['metadatas'], results['distances']):
-        #print(f"Raw Document Result: {doc}")  # Check the raw document result (which should be chunk indices or text)
+        # Here, we store the document text (doc), metadata (file, page, chunk), and similarity score (distance)
         
-        # If the result is an index, fetch the text
-        if isinstance(doc, list):
-            print(f"Document Text: {' '.join(doc)}")  # Join the list if it contains indices and print the corresponding text
+        if isinstance(metadata, dict): 
+            top_results.append({
+                "file": metadata.get('file', 'Unknown file'),  # Get file name from metadata, default to 'Unknown file'
+                "page": metadata.get('page', 'Unknown page'),  # Get page number from metadata, default to 'Unknown page'
+                "chunk": doc,  # The chunk of text (document) returned from the search
+                "similarity": distance  # The similarity score (cosine distance)
+            })
+
+        elif isinstance(metadata, list):
+            # Handle case where metadata is a list. For simplicity, take the first item (adjust based on your needs)
+            metadata_item = metadata[0] if metadata else {}
+            top_results.append({
+                "file": metadata_item.get('file', 'Unknown file'),
+                "page": metadata_item.get('page', 'Unknown page'),
+                "chunk": doc,  # The chunk of text (document) returned from the search
+                "similarity": distance  # The similarity score (cosine distance)
+            })
         else:
-            print(f"Document Text: {doc}")  # In case it's not a list, print it directly
+            # If metadata is neither a dictionary nor a list, you might want to handle it differently
+            print(f"Unexpected metadata type: {type(metadata)}")
+            top_results.append({
+                "file": 'Unknown file',
+                "page": 'Unknown page',
+                "chunk": doc,  # The chunk of text (document) returned from the search
+                "similarity": distance  # The similarity score (cosine distance)
+            })
+    return top_results
 
-        print(f"Metadata: {metadata}")  # The associated metadata (file, page, chunk)
-        print(f"Distance: {distance}")  # The cosine similarity score)
-
-    # # Need to update the following for the above to append the metadata to the top results
-    # top_results = []
-    # for result in results['documents'][0]:
-    #     # Ensure 'result' is not a string before trying to access its metadata
-    #     if isinstance(result, dict):
-    #         metadata = result.get('metadata', {})
-    #         top_results.append({
-    #             "file": metadata.get('file', 'Unknown file'),
-    #             "page": metadata.get('page', 'Unknown page'),
-    #             "chunk": metadata.get('chunk', 'Unknown chunk'),
-    #             "similarity": result.get('score', 'Unknown score')
-    #         })
-
-    # # Print results for debugging
-    # # for result in top_results:
-    # #     print(f"---> File: {result['file']}, Page: {result['page']}, Chunk: {result['chunk']}, Similarity: {result['similarity']}")
-
-    # return top_results
 
 def search_embeddings(query, collection, top_k=3):
     """
@@ -184,6 +184,7 @@ def generate_rag_response(query, context_results):
     """
     Generate a response using a Retrieval Augmented Generation (RAG) model based on the context results.
     """
+
     # Prepare context string
     context_str = "\n".join(
         [
