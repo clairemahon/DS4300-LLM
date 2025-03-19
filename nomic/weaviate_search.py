@@ -82,8 +82,14 @@ def interactive_search():
         if query.lower() == "exit":
             break
 
+        start_time= time.time()
+
         context_results = search_weaviate(query)
         response = generate_rag_response(query, context_results)
+        
+        end_time = time.time()
+        time_taken = end_time - start_time
+        print(f"⏱️ Search took {time_taken:.2f} seconds.")
 
         print("\n--- Response ---")
         print(response)
