@@ -1,5 +1,6 @@
 import weaviate
 import ollama
+import time
 
 # Connect to Weaviate
 client = weaviate.Client("http://localhost:8090")
