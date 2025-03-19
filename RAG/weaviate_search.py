@@ -3,41 +3,49 @@ import ollama
 
 # Connect to Weaviate
 client = weaviate.Client("http://localhost:8090")
-# class_name = "DocumentChunk"
 class_name = "PDFEmbeddings"
 
-print(client.schema.get())
 
-def get_embedding(text: str, model: "mistral") -> list:
+def get_embedding(text: str, model: str = "nomic-embed-text") -> list:
     """Generate query embedding using Ollama."""
-    response = ollama.embeddings(model=model, prompt=text)
-    return response["embedding"]
+    try:
+        response = ollama.embeddings(model=model, prompt=text)
+        if "embedding" not in response or response["embedding"] is None:
+            raise ValueError(f"⚠️ Embedding generation failed for model '{model}'")
+        return response["embedding"]
+    except Exception as e:
+        print(f"⚠️ Embedding error: {e}")
+        return []  
 
 
 def search_weaviate(query, top_k=3):
     """Search Weaviate for the most relevant document chunks."""
-    query_embedding = get_embedding(query, "mistral")
+    query_embedding = get_embedding(query, "nomic-embed-text")
+
+    if not query_embedding:  
+        print("⚠️ No embedding was generated. Skipping search.")
+        return []  
+
 
     # Perform vector similarity search
-    result = client.query.get(
-        class_name,
-        ["file", "page", "chunk"]  # Ensure these properties exist in Weaviate
-    ).with_near_vector({"vector": query_embedding}).with_limit(top_k).do()
+    try:
+        result = client.query.get(
+            class_name,
+            ["file", "page", "chunk"]
+        ).with_near_vector({"vector": query_embedding}).with_limit(top_k).do()
 
-    # Check if the response contains valid data
-    if "data" not in result or "Get" not in result["data"] or class_name not in result["data"]["Get"]:
-        print("\n⚠️ Weaviate query failed or returned no results.")
+
+        if "data" not in result or "Get" not in result["data"] or class_name not in result["data"]["Get"]:
+            print("\n⚠️ Weaviate query returned no results.")
+            return [] 
+
+        return result["data"]["Get"][class_name]
+
+    except Exception as e:
+        print(f"⚠️ Weaviate search error: {e}")
         return []
 
-    results = result["data"]["Get"][class_name]
-    return [
-        {
-            "file": doc["file"],
-            "page": doc["page"],
-            "chunk": doc["chunk"]
-        }
-        for doc in results
-    ]
+
 
 def generate_rag_response(query, context_results):
     """Generate a response using RAG (Retrieval-Augmented Generation)."""
@@ -63,6 +71,7 @@ def generate_rag_response(query, context_results):
     )
     
     return response["message"]["content"]
+
 
 def interactive_search():
     """Interactive search interface."""
