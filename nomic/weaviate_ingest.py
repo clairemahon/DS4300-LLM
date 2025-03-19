@@ -3,6 +3,7 @@ import ollama
 import numpy as np
 import os
 import fitz
+import time
 
 # Initialize Weaviate client
 client = weaviate.Client("http://localhost:8090")
@@ -106,7 +107,15 @@ def main():
     clear_weaviate_store()
     create_weaviate_schema()
 
+    # Start time it takes to read in pdf
+    start_time = time.time()
+    
     process_pdfs("../data/")
+    
+    # End time it takes to read in pdf
+    end_time = time.time()
+    print(f"Processing time: {end_time - start_time:.2f} seconds")
+    
     print("\n---Done processing PDFs---\n")
 
     query_weaviate("What is the capital of France?")
