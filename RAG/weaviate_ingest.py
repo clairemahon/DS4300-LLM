@@ -35,7 +35,7 @@ def create_weaviate_schema():
 
 
 # Generate an embedding using nomic-embed-text
-def get_embedding(text: str, model: str = "mistral") -> list:
+def get_embedding(text: str, model: str = "nomic-embed-text:latest") -> list:
     response = ollama.embeddings(model=model, prompt=text)
     return response["embedding"]
 
@@ -113,11 +113,6 @@ def main():
 
     pass
 
-
-# if __name__ == "__main__":
-#     main()
-
-#     client._connection.close()
 
 if __name__ == "__main__":
     try:
