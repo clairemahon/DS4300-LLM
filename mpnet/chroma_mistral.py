@@ -11,6 +11,7 @@ import fitz
 import ollama
 from sentence_transformers import SentenceTransformer
 import time
+import psutil
 
 # Initialize SentenceTransformer model
 model = SentenceTransformer('all-mpnet-base-v2')  # Model from sentence-transformers library
@@ -22,6 +23,8 @@ VECTOR_DIM = 768
 COLLECTION_NAME = "embedding_collection"
 DISTANCE_METRIC = "cosine"
 
+def get_memory_usage():
+    return psutil.Process().memory_info().rss / (1024 * 1024)
 
 # Create a Chroma collection
 def create_chroma_collection():
@@ -90,6 +93,9 @@ def split_text_into_chunks(text, chunk_size=300, overlap=50):
 
 # Process all PDF files in a given directory
 def process_pdfs(data_dir, collection):
+    # End memory tracking
+    mem_start = get_memory_usage()
+    print(f"Memory usage: {mem_end - mem_start:.2f} MB")
     for file_name in os.listdir(data_dir):
         if file_name.endswith(".pdf"):
             pdf_path = os.path.join(data_dir, file_name)
@@ -106,6 +112,8 @@ def process_pdfs(data_dir, collection):
                         collection=collection
                     )
             print(f" -----> Processed {file_name}")
+    mem_end = get_memory_usage()
+    print(f"Memory usage: {mem_end - mem_start:.2f} MB")
 
 
 # Query Chroma collection
