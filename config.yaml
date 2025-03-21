@@ -1,0 +1,1 @@
+allow_reset: true # the server will now allow clients to reset its state
