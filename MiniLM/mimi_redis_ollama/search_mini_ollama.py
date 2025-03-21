@@ -5,7 +5,7 @@ from sentence_transformers import SentenceTransformer
 import ollama
 from redis.commands.search.query import Query
 from redis.commands.search.field import VectorField, TextField
-
+import time
 
 # Initialize models
 # embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -21,15 +21,24 @@ DISTANCE_METRIC = "COSINE"
 #     return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
 
-def get_embedding(text: str, model: str = "all-MiniLM-L6-v2") -> list:
+# def get_embedding(text: str, model: str = "all-MiniLM-L6-v2") -> list:
 
-    response = ollama.embeddings(model=model, prompt=text)
-    return response["embedding"]
+#     response = ollama.embeddings(model=model, prompt=text)
+#     return response["embedding"]
+
+# load model
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+def get_embedding(text: str) -> list:
+    embedding = model.encode(text)  # Use the model.encode() method
+    print("EMBEDDING: ", embedding)
+    return embedding
 
 
 def search_embeddings(query, top_k=3):
 
     query_embedding = get_embedding(query)
+    print("Query embedding: ", query_embedding)
 
     # Convert embedding to bytes for Redis search
     query_vector = np.array(query_embedding, dtype=np.float32).tobytes()
@@ -102,7 +111,7 @@ Answer:"""
 
     # Generate response using Ollama
     response = ollama.chat(
-        model="mistral:latest", messages=[{"role": "user", "content": prompt}]
+        model="llama3.2:latest", messages=[{"role": "user", "content": prompt}]
     )
 
     return response["message"]["content"]
@@ -119,11 +128,17 @@ def interactive_search():
         if query.lower() == "exit":
             break
 
+        start_time= time.time()
+
         # Search for relevant embeddings
         context_results = search_embeddings(query)
 
         # Generate RAG response
         response = generate_rag_response(query, context_results)
+
+        end_time = time.time()
+        time_taken = end_time - start_time
+        print(f"⏱️ Search took {time_taken:.2f} seconds.")
 
         print("\n--- Response ---")
         print(response)

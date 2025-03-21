@@ -5,6 +5,8 @@ from redis.commands.search.query import Query
 import os
 import fitz
 import ollama
+import psutil
+import time
 
 
 # initialize redis connection
@@ -18,6 +20,9 @@ INDEX_NAME = "embedding_index"
 DOC_PREFIX = "doc:"
 # defines distance metric to use when comparing vectors
 DISTANCE_METRIC = "COSINE"
+
+def get_memory_usage():
+    return psutil.Process().memory_info().rss / (1024 * 1024)
 
 # load model
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -45,11 +50,16 @@ def create_hnsw_index():
     )
     print("Index created successfully.")
 
-# Generate an embedding using sentence-transformers
-def get_embedding(text: str, model: str = "all-MiniLM-L6-v2") -> list:
+# # Generate an embedding using sentence-transformers
+# def get_embedding(text: str, model) -> list:
 
-    response = ollama.embeddings(model=model, prompt=text)
-    return response["embedding"]
+#     response = ollama.embeddings(model=model, prompt=text)
+#     return response["embedding"]
+
+# Generate an embedding using sentence-transformers
+def get_embedding(text: str) -> list:
+    embedding = model.encode(text)  # Use the model.encode() method
+    return embedding
 
 # Store the calculated embedding in Redis
 def store_embedding(file: str, page: str, chunk: str, embedding: list):
@@ -91,6 +101,9 @@ def split_text_into_chunks(text, chunk_size=300, overlap=50):
 # Process all PDF files in a given directory
 def process_pdfs(data_dir):
 
+    # Track memory usage
+    mem_start = get_memory_usage()
+  
     for file_name in os.listdir(data_dir):
         if file_name.endswith(".pdf"):
             pdf_path = os.path.join(data_dir, file_name)
@@ -109,6 +122,10 @@ def process_pdfs(data_dir):
                         embedding=embedding,
                     )
             print(f" -----> Processed {file_name}")
+
+    # End memory tracking
+    mem_end = get_memory_usage()
+    print(f"Memory usage: {mem_end - mem_start:.2f} MB")
 
 
 def query_redis(query_text: str):
@@ -132,7 +149,16 @@ def main():
     clear_redis_store()
     create_hnsw_index()
 
-    process_pdfs("../data/")
+    # Start time it takes to read in pdf
+    start_time = time.time()
+    
+
+    process_pdfs("../Data/")
+
+    # End time it takes to read in pdf
+    end_time = time.time()
+    print(f"Processing time: {end_time - start_time:.2f} seconds")
+    
     print("\n---Done processing PDFs---\n")
     query_redis("What is the capital of France?")
 
