@@ -21,7 +21,7 @@ DISTANCE_METRIC = "COSINE"
 #     return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
 
-def get_embedding(text: str, model: str = "nomic-embed-text") -> list:
+def get_embedding(text: str, model: str = "all-MiniLM-L6-v2") -> list:
 
     response = ollama.embeddings(model=model, prompt=text)
     return response["embedding"]
