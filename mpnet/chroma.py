@@ -10,6 +10,7 @@ import os
 import fitz
 import ollama
 from sentence_transformers import SentenceTransformer
+import time
 
 # Initialize SentenceTransformer model
 model = SentenceTransformer('all-mpnet-base-v2')  # Model from sentence-transformers library
@@ -258,15 +259,20 @@ def interactive_search(collection):
         if query.lower() == "exit":
             break
 
+        start_time= time.time()
+
         # Search for relevant embeddings
         context_results = query_chroma(query, collection)
 
         # Generate RAG response
         response = generate_rag_response(query, context_results)
 
+        end_time = time.time()
+        time_taken = end_time - start_time
+        print(f"⏱️ Search took {time_taken:.2f} seconds.")
+
         print("\n--- Response ---")
         print(response)
-
 
 def main():
     collection = create_chroma_collection()
