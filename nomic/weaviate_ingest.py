@@ -121,7 +121,7 @@ def main():
     # Start time it takes to read in pdf
     start_time = time.time()
     
-    process_pdfs("../data/")
+    process_pdfs("../Data/")
     
     # End time it takes to read in pdf
     end_time = time.time()
