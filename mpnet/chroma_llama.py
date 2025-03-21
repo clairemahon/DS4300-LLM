@@ -277,7 +277,11 @@ def interactive_search(collection):
 def main():
     collection = create_chroma_collection()
 
+    start_time= time.time() #Start timing the processing
     process_pdfs("/Users/clairemahon/DS4300/DS4300-LLM/data", collection)
+    end_time = time.time()
+    time_taken = end_time - start_time
+    print(f"⏱️ Processing took {time_taken:.2f} seconds.")
     print("\n---Done processing PDFs---\n")
     #query_chroma("What are the data structures used?", collection)
     
