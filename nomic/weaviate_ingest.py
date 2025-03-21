@@ -4,6 +4,7 @@ import numpy as np
 import os
 import fitz
 import time
+import psutil
 
 # Initialize Weaviate client
 client = weaviate.Client("http://localhost:8090")
@@ -11,6 +12,8 @@ client = weaviate.Client("http://localhost:8090")
 VECTOR_DIM = 768
 COLLECTION_NAME = "PDFEmbeddings"
 
+def get_memory_usage():
+    return psutil.Process().memory_info().rss / (1024 * 1024)
 
 # Clear Weaviate database
 def clear_weaviate_store():
@@ -77,6 +80,10 @@ def split_text_into_chunks(text, chunk_size=300, overlap=50):
 
 # Process all PDF files
 def process_pdfs(data_dir):
+
+    # Track memory usage
+    mem_start = get_memory_usage()
+    
     for file_name in os.listdir(data_dir):
         if file_name.endswith(".pdf"):
             pdf_path = os.path.join(data_dir, file_name)
@@ -87,6 +94,10 @@ def process_pdfs(data_dir):
                     embedding = get_embedding(chunk)
                     store_embedding(file_name, page_num, chunk, embedding)
             print(f" -----> Processed {file_name}")
+
+    # End memory tracking
+    mem_end = get_memory_usage()
+    print(f"Memory usage: {mem_end - mem_start:.2f} MB")
 
 
 # Query Weaviate
@@ -110,7 +121,7 @@ def main():
     # Start time it takes to read in pdf
     start_time = time.time()
     
-    process_pdfs("../data/")
+    process_pdfs("../Data/")
     
     # End time it takes to read in pdf
     end_time = time.time()
