@@ -1,5 +1,7 @@
+# Implementation of the Chroma Vector db, with mp-netbase-v2 embedding model, with the Ollama 3.2 LLM
+
 #Chroma Vector DB
-#Installation
+#Chroma Installation
 # pip install chromadb
 
 from chromadb.config import Settings
@@ -188,8 +190,6 @@ def query_chroma(query: str, collection):
 #     # Print results for debugging
 #     # for result in top_results:
 #     #     print(f"---> File: {result['file']}, Page: {result['page']}, Chunk: {result['chunk']}, Similarity: {result['similarity']}")
-
-
 
 def search_embeddings(query, collection, top_k=3):
     """

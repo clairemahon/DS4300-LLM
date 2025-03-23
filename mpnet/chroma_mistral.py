@@ -1,3 +1,5 @@
+# Implementation of the Chroma Vector db, with mp-netbase-v2 embedding model, with the Mistral LLM
+
 #Chroma Vector DB
 #Installation
 # pip install chromadb
