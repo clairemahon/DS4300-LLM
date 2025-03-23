@@ -1,5 +1,6 @@
 import redis
 import json
+import time
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import ollama
@@ -11,20 +12,25 @@ from redis.commands.search.field import VectorField, TextField
 # embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 redis_client = redis.StrictRedis(host="localhost", port=6380, decode_responses=True)
 
-VECTOR_DIM = 768
+VECTOR_DIM = 384
 INDEX_NAME = "embedding_index"
 DOC_PREFIX = "doc:"
 DISTANCE_METRIC = "COSINE"
+
+
+# load model
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
 # def cosine_similarity(vec1, vec2):
 #     """Calculate cosine similarity between two vectors."""
 #     return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
 
-def get_embedding(text: str, model: str = "all-MiniLM-L6-v2") -> list:
-
-    response = ollama.embeddings(model=model, prompt=text)
-    return response["embedding"]
+# Generate an embedding using sentence-transformers
+def get_embedding(text: str) -> list:
+    embedding = model.encode(text)  # Use the model.encode() method
+    # print(f'Document Text:  {embedding}')
+    return embedding
 
 
 def search_embeddings(query, top_k=3):
@@ -119,11 +125,17 @@ def interactive_search():
         if query.lower() == "exit":
             break
 
+        start_time= time.time()
+
         # Search for relevant embeddings
         context_results = search_embeddings(query)
 
         # Generate RAG response
         response = generate_rag_response(query, context_results)
+
+        end_time = time.time()
+        time_taken = end_time - start_time
+        print(f"⏱️ Search took {time_taken:.2f} seconds.")
 
         print("\n--- Response ---")
         print(response)

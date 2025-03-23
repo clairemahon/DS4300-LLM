@@ -13,7 +13,7 @@ import time
 redis_client = redis.Redis(host = 'localhost', port = 6380, db = 0)
 
 # defines dimensions of embedding vectors
-VECTOR_DIM = 768
+VECTOR_DIM = 384
 # defining name of redis index
 INDEX_NAME = "embedding_index"
 # prefix used to create unique key for each document stored in redis

@@ -5,13 +5,14 @@ from redis.commands.search.query import Query
 import os
 import fitz
 import ollama
-
+import time
+import psutil
 
 # initialize redis connection
 redis_client = redis.Redis(host = 'localhost', port = 6380, db = 0)
 
 # defines dimensions of embedding vectors
-VECTOR_DIM = 768
+VECTOR_DIM = 384
 # defining name of redis index
 INDEX_NAME = "embedding_index"
 # prefix used to create unique key for each document stored in redis
@@ -21,6 +22,9 @@ DISTANCE_METRIC = "COSINE"
 
 # load model
 model = SentenceTransformer('all-MiniLM-L6-v2')
+
+def get_memory_usage():
+    return psutil.Process().memory_info().rss / (1024 * 1024)
 
 # used to clear the redis vector store
 def clear_redis_store():
@@ -45,23 +49,40 @@ def create_hnsw_index():
     )
     print("Index created successfully.")
 
-def get_embedding(text: str, model: str = "all-MiniLM-L6-v2") -> list:
+# Generate an embedding using sentence-transformers
+def get_embedding(text: str) -> list:
+    embedding = model.encode(text)  # Use the model.encode() method
+    # print(f'Document Text:  {embedding}')
+    return embedding
 
-    response = ollama.embeddings(model=model, prompt=text)
-    return response["embedding"]
-
+# # Store the calculated embedding in Redis
+# def store_embedding(doc_id: str, text: str, embedding: list):
+#     key = f"{DOC_PREFIX}{doc_id}"
+#     redis_client.hset(
+#         key,
+#         mapping={
+#             "text": text,
+#             "embedding": np.array(embedding, dtype=np.float32).tobytes(),  # Store as byte array
+#         },
+#     )
+#     print(f"Stored embedding for: {text}")
 
 # Store the calculated embedding in Redis
-def store_embedding(doc_id: str, text: str, embedding: list):
-    key = f"{DOC_PREFIX}{doc_id}"
+def store_embedding(file: str, page: str, chunk: str, embedding: list):
+    key = f"{DOC_PREFIX}:{file}_page_{page}_chunk_{chunk}"
     redis_client.hset(
         key,
         mapping={
-            "text": text,
-            "embedding": np.array(embedding, dtype=np.float32).tobytes(),  # Store as byte array
+            "file": file,
+            "page": page,
+            "chunk": chunk,
+            "embedding": np.array(
+                embedding, dtype=np.float32
+            ).tobytes(),  # Store as byte array
         },
     )
-    print(f"Stored embedding for: {text}")
+    # print(f"Stored embedding for: {chunk}")
+
 
 # extract the text from a PDF by page
 def extract_text_from_pdf(pdf_path):
@@ -87,6 +108,9 @@ def split_text_into_chunks(text, chunk_size=300, overlap=50):
 # Process all PDF files in a given directory
 def process_pdfs(data_dir):
 
+    # Track memory usage
+    mem_start = get_memory_usage()
+
     for file_name in os.listdir(data_dir):
         if file_name.endswith(".pdf"):
             pdf_path = os.path.join(data_dir, file_name)
@@ -105,6 +129,11 @@ def process_pdfs(data_dir):
                         embedding=embedding,
                     )
             print(f" -----> Processed {file_name}")
+
+    # End memory tracking
+    mem_end = get_memory_usage()
+    print(f"Memory usage: {mem_end - mem_start:.2f} MB")
+
 
 
 def query_redis(query_text: str):
@@ -128,7 +157,15 @@ def main():
     clear_redis_store()
     create_hnsw_index()
 
+    # Start time it takes to read in pdf
+    start_time = time.time()
+
     process_pdfs("../data/")
+
+    # End time it takes to read in pdf
+    end_time = time.time()
+    print(f"Processing time: {end_time - start_time:.2f} seconds")
+
     print("\n---Done processing PDFs---\n")
     query_redis("What is the capital of France?")
 
