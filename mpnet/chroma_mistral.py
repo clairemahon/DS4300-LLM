@@ -95,9 +95,8 @@ def split_text_into_chunks(text, chunk_size=300, overlap=50):
 
 # Process all PDF files in a given directory
 def process_pdfs(data_dir, collection):
-    # End memory tracking
+    # Start memory tracking
     mem_start = get_memory_usage()
-    print(f"Memory usage: {mem_end - mem_start:.2f} MB")
     for file_name in os.listdir(data_dir):
         if file_name.endswith(".pdf"):
             pdf_path = os.path.join(data_dir, file_name)
@@ -115,7 +114,8 @@ def process_pdfs(data_dir, collection):
                     )
             print(f" -----> Processed {file_name}")
     mem_end = get_memory_usage()
-    print(f"Memory usage: {mem_end - mem_start:.2f} MB")
+    mem_time = mem_end - mem_start
+    print(f"Memory usage: {mem_time:.2f} MB")
 
 
 # Query Chroma collection
@@ -287,6 +287,7 @@ def interactive_search(collection):
 def main():
     collection = create_chroma_collection()
 
+    #Update this to your local path for the data folder
     process_pdfs("/Users/clairemahon/DS4300/DS4300-LLM/data", collection)
     print("\n---Done processing PDFs---\n")
     #query_chroma("What are the data structures used?", collection)
