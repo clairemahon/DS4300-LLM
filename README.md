@@ -4,6 +4,9 @@ Practical 2 for DS4300 Northeastern University
 DS 4300 - Spring 2025 
 Practical 02
 
+
+https://www.canva.com/design/DAGiZfBKUsA/dlhS2BN9UyLNaVX5Bc9yAQ/view?utm_content=DAGiZfBKUsA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h11d330a8f1
+
 Due: 
 Project needs to be functional for Exam on March 24.
 Final deliverable and repo to be submitted by March 26 @ 11:59pm. 
