@@ -25,8 +25,8 @@ MiniLM-Redis:
 - To run with mistral, go into MiniLM folder and run: "python ingest_mistral.py" and then "python search_mistral.py"
 
 Mpnet-Chroma:
-- To run with llama3.2, go into Mpnet folder and run: 
-- To run with mistral, go into Mpnet folder and run:
+- To run with llama3.2, go into Mpnet folder and run: "python chroma_llama.py"
+- To run with mistral, go into Mpnet folder and run: "python chroma_mistral.py"
 
 Nomic-Weaviate:
 - To run with llama3.2, go into nomic folder and run: "python ingest_weaviate.py" and then "python search_weaviate_llama.py"
