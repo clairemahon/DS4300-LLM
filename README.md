@@ -19,3 +19,7 @@ There are numerous installations that need to happen to ensure you can test all 
   ## How to run
 
 You will want to enter the Pipelines folder, each model is tested in a separate script.  Within the script, we automatically return the time it takes to return each response, as well as the time it takes to ingest and the memory it takes to store.
+
+MiniLM:
+- to run with llama3.2, go into MiniLM folder and run: "python redis_ollama.py"
+- to run with mistral, go into MiniLM folder and run: "python ingest_mistral.py" and then "python search_mistral.py"
