@@ -13,4 +13,8 @@ There are numerous installations that need to happen to ensure you can test all 
 - Weaviate: Install weaviate from online and follow documentation for setup: https://weaviate.io/developers/weaviate
 - Nomic: Run "ollama pull nomic" in your terminal
 - Mpnet-base-v2:
-- MiniLM: 
+- MiniLM:
+
+  ## How to run
+
+You will want to enter the Pipelines folder, each model is tested in a separate script.  Within the script, we automatically return the time it takes to return each response, as well as the time it takes to ingest and the memory it takes to store.
