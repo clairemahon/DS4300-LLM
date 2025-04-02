@@ -64,7 +64,6 @@ As a team, you’ll produce a slide deck communicating your findings as well as 
 
 You will also include a public GitHub repository containing well-organized set of scripts related to the various pipelines your team tests.  The README should describe how to execute your project.  
 
-<iframe src="https://clairemahon.github.io/DS4300-LLM/Practical%202%20-%20DS4300.pdf" width="100%" height="600px"></iframe>
 
 
 
