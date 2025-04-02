@@ -13,7 +13,8 @@ There are numerous installations that need to happen to ensure you can test all 
 - Weaviate: Install weaviate from online and follow documentation for setup: https://weaviate.io/developers/weaviate
 - Nomic: Run "ollama pull nomic" in your terminal
 - Mpnet-base-v2:
-- MiniLM:
+- MiniLM: run "pip install -U sentence-transformers" then "ollama pull all-minilm:l6-v2" in your terminal
+
 
   ## How to run
 
