@@ -64,7 +64,7 @@ As a team, you’ll produce a slide deck communicating your findings as well as 
 
 You will also include a public GitHub repository containing well-organized set of scripts related to the various pipelines your team tests.  The README should describe how to execute your project.  
 
-[View PDF](./Practical2-DS4300.pdf)
+[View PDF](./Practical 2 - DS4300.pdf)
 
 
 Areas for Evaluation:
