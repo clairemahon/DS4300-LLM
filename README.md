@@ -20,6 +20,14 @@ There are numerous installations that need to happen to ensure you can test all 
 
 You will want to enter the Pipelines folder, each model is tested in a separate script.  Within the script, we automatically return the time it takes to return each response, as well as the time it takes to ingest and the memory it takes to store.
 
-MiniLM:
-- to run with llama3.2, go into MiniLM folder and run: "python redis_ollama.py"
-- to run with mistral, go into MiniLM folder and run: "python ingest_mistral.py" and then "python search_mistral.py"
+MiniLM-Redis:
+- To run with llama3.2, go into MiniLM folder and run: "python redis_ollama.py"
+- To run with mistral, go into MiniLM folder and run: "python ingest_mistral.py" and then "python search_mistral.py"
+
+Mpnet-Chroma:
+- To run with llama3.2, go into Mpnet folder and run: 
+- To run with mistral, go into Mpnet folder and run:
+
+Nomic-Weaviate:
+- To run with llama3.2, go into nomic folder and run: "python ingest_weaviate.py" and then "python search_weaviate_llama.py"
+- To run with mistral, go into nomic folder and run: "python ingest_weaviate.py" and then "python search_weaviate_mistral.py"
