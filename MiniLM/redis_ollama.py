@@ -50,12 +50,6 @@ def create_hnsw_index():
     )
     print("Index created successfully.")
 
-# # Generate an embedding using sentence-transformers
-# def get_embedding(text: str, model) -> list:
-
-#     response = ollama.embeddings(model=model, prompt=text)
-#     return response["embedding"]
-
 # Generate an embedding using sentence-transformers
 def get_embedding(text: str) -> list:
     embedding = model.encode(text)  # Use the model.encode() method
@@ -76,7 +70,7 @@ def store_embedding(file: str, page: str, chunk: str, embedding: list):
             ).tobytes(),  # Store as byte array
         },
     )
-    # print(f"Stored embedding for: {chunk}")
+    
 
 # extract the text from a PDF by page
 def extract_text_from_pdf(pdf_path):
@@ -142,14 +136,6 @@ def query_redis(query_text: str):
     res = redis_client.ft(INDEX_NAME).search(
         q, query_params={"vec": np.array(embedding, dtype=np.float32).tobytes()}
     )
-    print(f'res: {res}')  # Debug print for res
-    if res.docs:
-        print(f'Response docs: {len(res.docs)} found.')
-        for doc in res.docs:
-            print(f"{doc.id} \n ----> {doc.vector_distance}\n")
-    else:
-        print("No results found.")
-    print(res.docs)
 
     for doc in res.docs:
         print(f"{doc.id} \n ----> {doc.vector_distance}\n")
@@ -291,27 +277,6 @@ def interactive_search():
         print("\n--- Response ---")
         print(response)
 
-
-# def store_embedding(file, page, chunk, embedding):
-#     """
-#     Store an embedding in Redis using a hash with vector field.
-
-#     Args:
-#         file (str): Source file name
-#         page (str): Page number
-#         chunk (str): Chunk index
-#         embedding (list): Embedding vector
-#     """
-#     key = f"{file}_page_{page}_chunk_{chunk}"
-#     redis_client.hset(
-#         key,
-#         mapping={
-#             "embedding": np.array(embedding, dtype=np.float32).tobytes(),
-#             "file": file,
-#             "page": page,
-#             "chunk": chunk,
-#         },
-#     )
 
 
 
