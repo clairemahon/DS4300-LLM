@@ -12,10 +12,10 @@ def get_embedding(text: str, model: str = "nomic-embed-text") -> list:
     try:
         response = ollama.embeddings(model=model, prompt=text)
         if "embedding" not in response or response["embedding"] is None:
-            raise ValueError(f"⚠️ Embedding generation failed for model '{model}'")
+            raise ValueError(f"Embedding generation failed for model '{model}'")
         return response["embedding"]
     except Exception as e:
-        print(f"⚠️ Embedding error: {e}")
+        print(f"Embedding error: {e}")
         return []  
 
 
@@ -24,7 +24,7 @@ def search_weaviate(query, top_k=3):
     query_embedding = get_embedding(query, "nomic-embed-text")
 
     if not query_embedding:  
-        print("⚠️ No embedding was generated. Skipping search.")
+        print("No embedding was generated. Skipping search.")
         return []  
 
 
@@ -37,13 +37,13 @@ def search_weaviate(query, top_k=3):
 
 
         if "data" not in result or "Get" not in result["data"] or class_name not in result["data"]["Get"]:
-            print("\n⚠️ Weaviate query returned no results.")
+            print("\n Weaviate query returned no results.")
             return [] 
 
         return result["data"]["Get"][class_name]
 
     except Exception as e:
-        print(f"⚠️ Weaviate search error: {e}")
+        print(f"Weaviate search error: {e}")
         return []
 
 
