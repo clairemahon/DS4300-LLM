@@ -9,10 +9,10 @@ There are numerous installations that need to happen to ensure you can test all 
 - Ollama: Ensure you download Ollama from online and follow documentation for setup.
   - Once ollama is installed, run "ollama pull llama3.2" and "ollama pull mistral" in your terminal to ensure you have both the LLM models needed.
 - Redis: Install on docker. Pull and run a Redis container and a Redis-stack container. 
-- Chroma: 
+- Chroma: Run the command "pip install chromadb" in your terminal
 - Weaviate: Install weaviate from online and follow documentation for setup: https://weaviate.io/developers/weaviate
 - Nomic: Run "ollama pull nomic" in your terminal
-- Mpnet-base-v2:
+- Mpnet-base-v2: run "pip install -U sentence-transformers" then "ollama pull mpnet-base-v2" in your terminal
 - MiniLM: run "pip install -U sentence-transformers" then "ollama pull all-minilm:l6-v2" in your terminal
 
 
